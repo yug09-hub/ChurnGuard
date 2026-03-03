@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChurnGuard AI - Customer Churn Prediction Dashboard</title>
+    <meta name="description"
+        content="Real-time customer churn prediction dashboard powered by Machine Learning. Analyze customer behavior, predict churn risk, and get personalized retention strategies.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+    <!-- ═══ SPLASH SCREEN ═══ -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="splash-content">
+            <div class="splash-icon">
+                <i class="fas fa-shield-halved"></i>
+            </div>
+            <h1 class="splash-title">ChurnGuard <span>AI</span></h1>
+            <p class="splash-subtitle">Initializing prediction engine...</p>
+            <div class="splash-progress">
+                <div class="splash-progress-bar" id="splashProgress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ TOAST CONTAINER ═══ -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ═══ BACK TO TOP ═══ -->
+    <button class="back-to-top" id="backToTop" title="Back to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- ═══ NAVIGATION ═══ -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-brand">
+            <div class="brand-icon">
+                <i class="fas fa-shield-halved"></i>
+            </div>
+            <div class="brand-text">
+                <span class="brand-name">ChurnGuard</span>
+                <span class="brand-tag">AI</span>
+            </div>
+        </div>
+        <div class="nav-links">
+            <a href="#dashboard" class="nav-link active" data-section="dashboard">
+                <i class="fas fa-chart-line"></i> Dashboard
+            </a>
+            <a href="#predict" class="nav-link" data-section="predict">
+                <i class="fas fa-brain"></i> Predict
+            </a>
+            <a href="#customers" class="nav-link" data-section="customers">
+                <i class="fas fa-users"></i> Customers
+            </a>
+            <a href="#analytics" class="nav-link" data-section="analytics">
+                <i class="fas fa-chart-pie"></i> Analytics
+            </a>
+        </div>
+        <div class="nav-right">
+            <div class="nav-clock" id="navClock"></div>
+            <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+                <i class="fas fa-moon" id="themeIcon"></i>
+            </button>
+            <div class="nav-status">
+                <span class="status-dot"></span>
+                <span>Model Active</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══ HERO SECTION ═══ -->
+    <section class="hero-section">
+        <canvas id="particleCanvas" class="particle-canvas"></canvas>
+        <div class="hero-bg-effects">
+            <div class="hero-orb hero-orb-1"></div>
+            <div class="hero-orb hero-orb-2"></div>
+            <div class="hero-orb hero-orb-3"></div>
+        </div>
+        <div class="hero-content">
+            <h1 class="hero-title">Customer Churn <span class="gradient-text">Prediction</span></h1>
+            <p class="hero-subtitle" id="heroSubtitle"></p>
+            <div class="hero-badges">
+                <div class="hero-badge">
+                    <i class="fas fa-microchip"></i>
+                    <span id="heroModelName">Random Forest</span>
+                </div>
+                <div class="hero-badge">
+                    <i class="fas fa-database"></i>
+                    <span id="heroDataSize">7,043 Records</span>
+                </div>
+                <div class="hero-badge">
+                    <i class="fas fa-bullseye"></i>
+                    <span id="heroAccuracy">84.75% AUC</span>
+                </div>
+            </div>
+            <a href="#predict" class="hero-cta">
+                <i class="fas fa-bolt"></i> Start Predicting
+                <span class="cta-arrow"><i class="fas fa-chevron-down"></i></span>
+            </a>
+        </div>
+    </section>
+
+    <!-- ═══ STATS TICKER ═══ -->
+    <div class="ticker-bar">
+        <div class="ticker-track" id="tickerTrack">
+            <div class="ticker-content" id="tickerContent">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ KPI CARDS ═══ -->
+    <section class="kpi-section" id="dashboard">
+        <div class="section-header reveal">
+            <h2 class="section-title"><i class="fas fa-chart-line"></i> Key Performance Indicators</h2>
+            <p class="section-desc">Real-time overview of your customer base health</p>
+        </div>
+        <div class="kpi-grid">
+            <div class="kpi-card reveal" id="kpiTotalCustomers">
+                <div class="kpi-icon blue"><i class="fas fa-users"></i></div>
+                <div class="kpi-content">
+                    <span class="kpi-value" data-target="0" id="kpiTotalVal">0</span>
+                    <span class="kpi-label">Total Customers</span>
+                </div>
+                <div class="kpi-trend up"><i class="fas fa-arrow-up"></i> Active</div>
+            </div>
+            <div class="kpi-card reveal" id="kpiChurnRate">
+                <div class="kpi-icon red"><i class="fas fa-user-minus"></i></div>
+                <div class="kpi-content">
+                    <span class="kpi-value" data-target="0" id="kpiChurnVal">0%</span>
+                    <span class="kpi-label">Churn Rate</span>
+                </div>
+                <div class="kpi-trend down"><i class="fas fa-exclamation-triangle"></i> At Risk</div>
+            </div>
+            <div class="kpi-card reveal" id="kpiAvgCharges">
+                <div class="kpi-icon green"><i class="fas fa-dollar-sign"></i></div>
+                <div class="kpi-content">
+                    <span class="kpi-value" data-target="0" id="kpiChargesVal">$0</span>
+                    <span class="kpi-label">Avg Monthly Charges</span>
+                </div>
+                <div class="kpi-trend neutral"><i class="fas fa-minus"></i> Steady</div>
+            </div>
+            <div class="kpi-card reveal" id="kpiAtRisk">
+                <div class="kpi-icon orange"><i class="fas fa-exclamation-circle"></i></div>
+                <div class="kpi-content">
+                    <span class="kpi-value" data-target="0" id="kpiAtRiskVal">0</span>
+                    <span class="kpi-label">Churned Customers</span>
+                </div>
+                <div class="kpi-trend down"><i class="fas fa-arrow-down"></i> Needs Action</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ PREDICTION SECTION ═══ -->
+    <section class="predict-section" id="predict">
+        <div class="section-header reveal">
+            <h2 class="section-title"><i class="fas fa-brain"></i> Real-Time Churn Prediction</h2>
+            <p class="section-desc">Enter customer details to get instant churn risk assessment and personalized
+                retention strategies</p>
+        </div>
+
+        <!-- Quick-Fill Presets -->
+        <div class="presets-row reveal">
+            <span class="presets-label"><i class="fas fa-magic"></i> Quick Fill:</span>
+            <button class="preset-btn preset-danger" data-preset="high_risk">
+                <i class="fas fa-exclamation-triangle"></i> High Risk Customer
+            </button>
+            <button class="preset-btn preset-warning" data-preset="medium_risk">
+                <i class="fas fa-user"></i> Average Customer
+            </button>
+            <button class="preset-btn preset-success" data-preset="low_risk">
+                <i class="fas fa-shield-alt"></i> Low Risk Customer
+            </button>
+        </div>
+
+        <div class="predict-container">
+            <div class="predict-form-wrapper reveal">
+                <form id="predictForm" class="predict-form">
+                    <!-- Demographics -->
+                    <div class="form-group-header">
+                        <i class="fas fa-user"></i> Demographics
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="gender">Gender</label>
+                            <select id="gender" name="gender">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="seniorCitizen">Senior Citizen</label>
+                            <select id="seniorCitizen" name="senior_citizen">
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="partner">Partner</label>
+                            <select id="partner" name="partner">
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="dependents">Dependents</label>
+                            <select id="dependents" name="dependents">
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Account Info -->
+                    <div class="form-group-header">
+                        <i class="fas fa-file-invoice-dollar"></i> Account Information
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tenureMonths">Tenure (Months)</label>
+                            <input type="number" id="tenureMonths" name="tenure_months" value="12" min="0" max="72">
+                        </div>
+                        <div class="form-group">
+                            <label for="contract">Contract</label>
+                            <select id="contract" name="contract">
+                                <option value="Month-to-month">Month-to-month</option>
+                                <option value="One year">One year</option>
+                                <option value="Two year">Two year</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="monthlyCharges">Monthly Charges ($)</label>
+                            <input type="number" id="monthlyCharges" name="monthly_charges" value="65" min="0" max="200"
+                                step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label for="totalCharges">Total Charges ($)</label>
+                            <input type="number" id="totalCharges" name="total_charges" value="780" min="0" max="10000"
+                                step="0.01">
+                        </div>
+                    </div>
+
+                    <!-- Services -->
+                    <div class="form-group-header">
+                        <i class="fas fa-cogs"></i> Services
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="phoneService">Phone Service</label>
+                            <select id="phoneService" name="phone_service">
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="multipleLines">Multiple Lines</label>
+                            <select id="multipleLines" name="multiple_lines">
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No phone service">No phone service</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="internetService">Internet Service</label>
+                            <select id="internetService" name="internet_service">
+                                <option value="Fiber optic">Fiber optic</option>
+                                <option value="DSL">DSL</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="onlineSecurity">Online Security</label>
+                            <select id="onlineSecurity" name="online_security">
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No internet service">No internet service</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="onlineBackup">Online Backup</label>
+                            <select id="onlineBackup" name="online_backup">
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No internet service">No internet service</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="deviceProtection">Device Protection</label>
+                            <select id="deviceProtection" name="device_protection">
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No internet service">No internet service</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="techSupport">Tech Support</label>
+                            <select id="techSupport" name="tech_support">
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No internet service">No internet service</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="streamingTV">Streaming TV</label>
+                            <select id="streamingTV" name="streaming_tv">
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No internet service">No internet service</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="streamingMovies">Streaming Movies</label>
+                            <select id="streamingMovies" name="streaming_movies">
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No internet service">No internet service</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="paperlessBilling">Paperless Billing</label>
+                            <select id="paperlessBilling" name="paperless_billing">
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="paymentMethod">Payment Method</label>
+                            <select id="paymentMethod" name="payment_method">
+                                <option value="Electronic check">Electronic check</option>
+                                <option value="Mailed check">Mailed check</option>
+                                <option value="Bank transfer (automatic)">Bank transfer (automatic)</option>
+                                <option value="Credit card (automatic)">Credit card (automatic)</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="display:flex; align-items:flex-end;">
+                            <button type="submit" class="btn-predict" id="btnPredict">
+                                <i class="fas fa-bolt"></i> Predict Churn
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Prediction Results -->
+            <div class="predict-result-wrapper" id="predictionResults" style="display:none;">
+                <div class="result-header">
+                    <h3><i class="fas fa-poll"></i> Prediction Result</h3>
+                    <span class="result-prediction-badge" id="resultBadge">--</span>
+                </div>
+
+                <!-- Risk Gauge -->
+                <div class="gauge-container">
+                    <div class="gauge" id="riskGauge">
+                        <div class="gauge-body">
+                            <div class="gauge-fill" id="gaugeFill"></div>
+                            <div class="gauge-cover">
+                                <span class="gauge-value" id="gaugeValue">0%</span>
+                                <span class="gauge-label">Churn Probability</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="risk-level" id="riskLevel">
+                        <span class="risk-badge" id="riskBadge">--</span>
+                        <p class="risk-action" id="riskAction">--</p>
+                    </div>
+                </div>
+
+                <!-- Contributing Factors -->
+                <div class="factors-section">
+                    <h4><i class="fas fa-search-plus"></i> Contributing Factors</h4>
+                    <div class="factors-list" id="factorsList"></div>
+                </div>
+
+                <!-- Retention Strategies -->
+                <div class="strategies-section">
+                    <h4><i class="fas fa-lightbulb"></i> Retention Strategies</h4>
+                    <div class="strategies-list" id="strategiesList"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ CUSTOMER EXPLORER ═══ -->
+    <section class="customers-section" id="customers">
+        <div class="section-header reveal">
+            <h2 class="section-title"><i class="fas fa-users"></i> Customer Explorer</h2>
+            <p class="section-desc">Browse, search, and analyze individual customer churn risk profiles</p>
+        </div>
+        <div class="customers-controls reveal">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="customerSearch" placeholder="Search by ID, city, contract...">
+            </div>
+            <div class="customers-actions">
+                <select id="sortBy" class="sort-select">
+                    <option value="Churn Score">Sort by Churn Score</option>
+                    <option value="Monthly Charges">Sort by Monthly Charges</option>
+                    <option value="Tenure Months">Sort by Tenure</option>
+                    <option value="Total Charges">Sort by Total Charges</option>
+                </select>
+                <select id="sortDir" class="sort-select">
+                    <option value="desc">Descending</option>
+                    <option value="asc">Ascending</option>
+                </select>
+            </div>
+        </div>
+        <div class="customers-table-wrapper reveal">
+            <table class="customers-table" id="customersTable">
+                <thead>
+                    <tr>
+                        <th>Customer ID</th>
+                        <th>Gender</th>
+                        <th>Tenure</th>
+                        <th>Contract</th>
+                        <th>Monthly Charges</th>
+                        <th>Internet</th>
+                        <th>Churn Score</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="customersBody"></tbody>
+            </table>
+        </div>
+        <div class="pagination" id="pagination"></div>
+    </section>
+
+    <!-- ═══ ANALYTICS SECTION ═══ -->
+    <section class="analytics-section" id="analytics">
+        <div class="section-header reveal">
+            <h2 class="section-title"><i class="fas fa-chart-pie"></i> Analytics & Insights</h2>
+            <p class="section-desc">Deep dive into customer churn patterns and model performance</p>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card reveal">
+                <div class="chart-header">
+                    <h3><i class="fas fa-chart-pie"></i> Churn Distribution</h3>
+                </div>
+                <div class="chart-body">
+                    <canvas id="churnDistChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card reveal">
+                <div class="chart-header">
+                    <h3><i class="fas fa-chart-bar"></i> Churn by Contract Type</h3>
+                </div>
+                <div class="chart-body">
+                    <canvas id="contractChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card reveal">
+                <div class="chart-header">
+                    <h3><i class="fas fa-chart-line"></i> Churn by Tenure</h3>
+                </div>
+                <div class="chart-body">
+                    <canvas id="tenureChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card reveal">
+                <div class="chart-header">
+                    <h3><i class="fas fa-chart-bar"></i> Churn by Payment Method</h3>
+                </div>
+                <div class="chart-body">
+                    <canvas id="paymentChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card wide reveal">
+                <div class="chart-header">
+                    <h3><i class="fas fa-sort-amount-down"></i> Feature Importance (Top 15)</h3>
+                </div>
+                <div class="chart-body">
+                    <canvas id="featureChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card reveal">
+                <div class="chart-header">
+                    <h3><i class="fas fa-chart-bar"></i> Charges Distribution</h3>
+                </div>
+                <div class="chart-body">
+                    <canvas id="chargesChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card reveal">
+                <div class="chart-header">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Top Churn Reasons</h3>
+                </div>
+                <div class="chart-body">
+                    <canvas id="reasonsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Model Performance -->
+        <div class="model-perf-section">
+            <div class="section-header reveal">
+                <h2 class="section-title"><i class="fas fa-cog"></i> Model Performance</h2>
+            </div>
+            <div class="model-cards" id="modelCards"></div>
+        </div>
+    </section>
+
+    <!-- ═══ CUSTOMER DETAIL MODAL ═══ -->
+    <div class="modal-overlay" id="customerModal" style="display:none;">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose"><i class="fas fa-times"></i></button>
+            <div class="modal-header">
+                <h2><i class="fas fa-user-circle"></i> Customer Profile</h2>
+                <span class="modal-customer-id" id="modalCustomerId"></span>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <div class="modal-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ CONFETTI CANVAS ═══ -->
+    <canvas id="confettiCanvas" class="confetti-canvas"></canvas>
+
+    <!-- ═══ FOOTER ═══ -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <i class="fas fa-shield-halved"></i>
+                <span>ChurnGuard AI</span>
+            </div>
+            <p>Powered by Machine Learning | Built with Python, Flask & Chart.js</p>
+            <div class="footer-stats">
+                <span><i class="fas fa-database"></i> <span id="footerRecords">7,043</span> Records</span>
+                <span><i class="fas fa-microchip"></i> Random Forest Model</span>
+                <span><i class="fas fa-clock"></i> Real-time Predictions</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/js/app.js"></script>
+</body>
+
+</html>

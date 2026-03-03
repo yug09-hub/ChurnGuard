@@ -1,0 +1,75 @@
+{
+  "total_customers": 7043,
+  "churned": 1869,
+  "not_churned": 5174,
+  "churn_rate": 26.54,
+  "avg_monthly_charges": 64.76,
+  "avg_total_charges": 2283.3,
+  "avg_tenure": 32.4,
+  "churn_by_contract": {
+    "Month-to-month": 42.71,
+    "One year": 11.27,
+    "Two year": 2.83
+  },
+  "churn_by_internet": {
+    "DSL": 18.96,
+    "Fiber optic": 41.89,
+    "No": 7.4
+  },
+  "churn_by_payment": {
+    "Bank transfer (automatic)": 16.71,
+    "Credit card (automatic)": 15.24,
+    "Electronic check": 45.29,
+    "Mailed check": 19.11
+  },
+  "churn_by_tenure": {
+    "0-12": 47.68,
+    "13-24": 28.71,
+    "25-36": 21.63,
+    "37-48": 19.03,
+    "49-60": 14.42,
+    "61-72": 6.61
+  },
+  "charges_distribution": {
+    "$0-30": {
+      "total": 1653,
+      "churned": 162
+    },
+    "$30-50": {
+      "total": 646,
+      "churned": 199
+    },
+    "$50-70": {
+      "total": 1161,
+      "churned": 241
+    },
+    "$70-90": {
+      "total": 1844,
+      "churned": 697
+    },
+    "$90-120": {
+      "total": 1739,
+      "churned": 570
+    }
+  },
+  "churn_by_gender": {
+    "Female": 26.92,
+    "Male": 26.16
+  },
+  "top_churn_reasons": {
+    "Attitude of support person": 192,
+    "Competitor offered higher download speeds": 189,
+    "Competitor offered more data": 162,
+    "Don't know": 154,
+    "Competitor made better offer": 140,
+    "Attitude of service provider": 135,
+    "Competitor had better devices": 130,
+    "Network reliability": 103,
+    "Product dissatisfaction": 102,
+    "Price too high": 98
+  },
+  "churn_by_senior": {
+    "No": 23.61,
+    "Yes": 41.68
+  }
+}

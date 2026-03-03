@@ -1,0 +1,123 @@
+{
+  "RandomForest": {
+    "accuracy": 0.7786,
+    "precision": 0.5686,
+    "recall": 0.6872,
+    "f1": 0.6223,
+    "roc_auc": 0.8476,
+    "cv_f1_mean": 0.6356,
+    "cv_f1_std": 0.0071,
+    "confusion_matrix": [
+      [
+        840,
+        195
+      ],
+      [
+        117,
+        257
+      ]
+    ]
+  },
+  "GradientBoosting": {
+    "accuracy": 0.7793,
+    "precision": 0.5963,
+    "recall": 0.5214,
+    "f1": 0.5563,
+    "roc_auc": 0.8385,
+    "cv_f1_mean": 0.5911,
+    "cv_f1_std": 0.023,
+    "confusion_matrix": [
+      [
+        903,
+        132
+      ],
+      [
+        179,
+        195
+      ]
+    ]
+  },
+  "best_model": "RandomForest",
+  "feature_importances": [
+    {
+      "feature": "Contract",
+      "importance": 0.1303
+    },
+    {
+      "feature": "Charge_Per_Service",
+      "importance": 0.1019
+    },
+    {
+      "feature": "Tenure Months",
+      "importance": 0.0998
+    },
+    {
+      "feature": "Total Charges",
+      "importance": 0.089
+    },
+    {
+      "feature": "Monthly Charges",
+      "importance": 0.0809
+    },
+    {
+      "feature": "Avg_Charge_Per_Month",
+      "importance": 0.0805
+    },
+    {
+      "feature": "Dependents",
+      "importance": 0.057
+    },
+    {
+      "feature": "Online Security",
+      "importance": 0.0474
+    },
+    {
+      "feature": "Tech Support",
+      "importance": 0.0456
+    },
+    {
+      "feature": "Tenure_Bucket",
+      "importance": 0.0402
+    },
+    {
+      "feature": "Payment Method",
+      "importance": 0.0276
+    },
+    {
+      "feature": "Internet Service",
+      "importance": 0.022
+    },
+    {
+      "feature": "Online Backup",
+      "importance": 0.0162
+    },
+    {
+      "feature": "Service_Count",
+      "importance": 0.0158
+    },
+    {
+      "feature": "Paperless Billing",
+      "importance": 0.0151
+    },
+    {
+      "feature": "Partner",
+      "importance": 0.012
+    },
+    {
+      "feature": "Gender",
+      "importance": 0.0116
+    },
+    {
+      "feature": "Has_Internet",
+      "importance": 0.011
+    },
+    {
+      "feature": "Device Protection",
+      "importance": 0.0104
+    },
+    {
+      "feature": "Online Security_flag",
+      "importance": 0.0099
+    }
+  ]
+}
