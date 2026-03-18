@@ -1,5 +1,5 @@
 /**
- * ChurnGuard AI - Client-Side Application
+ * ChurnGuard - Client-Side Application
  * ========================================
  * Handles all dashboard interactivity: KPI counters, Chart.js graphs,
  * prediction form, customer explorer, and modal views.
@@ -12,14 +12,46 @@ let searchTimeout = null;
 
 // ── Initialize ───────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
+    initTheme();
     startClock();
     loadStats();
     loadCustomers();
     setupNavigation();
     setupPredictionForm();
+    setupPresets();
     setupCustomerSearch();
     setupModal();
+    setupLogout();
 });
+
+// ── Theme Management ──────────────────────────────────────────
+function initTheme() {
+    const savedTheme = localStorage.getItem("theme") || "dark";
+    setTheme(savedTheme);
+
+    const toggleBtn = document.getElementById("themeToggle");
+    if (toggleBtn) {
+        toggleBtn.addEventListener("click", () => {
+            const currentTheme = document.documentElement.getAttribute("data-theme");
+            const newTheme = currentTheme === "dark" ? "light" : "dark";
+            setTheme(newTheme);
+        });
+    }
+}
+
+function setTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+
+    const icon = document.getElementById("themeIcon");
+    if (icon) {
+        icon.style.transform = "rotate(360deg) scale(0)";
+        setTimeout(() => {
+            icon.className = theme === "dark" ? "fas fa-moon" : "fas fa-sun";
+            icon.style.transform = "rotate(0deg) scale(1)";
+        }, 150);
+    }
+}
 
 // ── Clock ────────────────────────────────────────────────────
 function startClock() {
@@ -84,6 +116,10 @@ async function loadStats() {
             document.getElementById("heroAccuracy").textContent =
                 (bestModel.roc_auc * 100).toFixed(1) + "% AUC";
         }
+
+        // Footer stats
+        document.getElementById("footerRecords").textContent = data.dataset.total_customers.toLocaleString();
+        document.getElementById("footerModel").textContent = data.model.best_model;
 
         // Charts
         renderChurnDistChart(data.dataset);
@@ -534,6 +570,111 @@ function renderModelCards(model) {
     }).join("");
 }
 
+// ── Quick-Fill Presets ────────────────────────────────────────
+const PRESETS = {
+    high_risk: {
+        gender: "Female",
+        senior_citizen: "Yes",
+        partner: "No",
+        dependents: "No",
+        tenure_months: 1,
+        contract: "Month-to-month",
+        monthly_charges: 105.00,
+        total_charges: 105.00,
+        phone_service: "Yes",
+        multiple_lines: "Yes",
+        internet_service: "Fiber optic",
+        online_security: "No",
+        online_backup: "No",
+        device_protection: "No",
+        tech_support: "No",
+        streaming_tv: "Yes",
+        streaming_movies: "Yes",
+        paperless_billing: "Yes",
+        payment_method: "Electronic check"
+    },
+    medium_risk: {
+        gender: "Male",
+        senior_citizen: "No",
+        partner: "No",
+        dependents: "No",
+        tenure_months: 24,
+        contract: "One year",
+        monthly_charges: 65.00,
+        total_charges: 1560.00,
+        phone_service: "Yes",
+        multiple_lines: "No",
+        internet_service: "DSL",
+        online_security: "Yes",
+        online_backup: "No",
+        device_protection: "Yes",
+        tech_support: "No",
+        streaming_tv: "No",
+        streaming_movies: "No",
+        paperless_billing: "No",
+        payment_method: "Mailed check"
+    },
+    low_risk: {
+        gender: "Male",
+        senior_citizen: "No",
+        partner: "Yes",
+        dependents: "Yes",
+        tenure_months: 72,
+        contract: "Two year",
+        monthly_charges: 20.00,
+        total_charges: 1440.00,
+        phone_service: "Yes",
+        multiple_lines: "No",
+        internet_service: "No",
+        online_security: "No internet service",
+        online_backup: "No internet service",
+        device_protection: "No internet service",
+        tech_support: "No internet service",
+        streaming_tv: "No internet service",
+        streaming_movies: "No internet service",
+        paperless_billing: "No",
+        payment_method: "Credit card (automatic)"
+    }
+};
+
+function setupPresets() {
+    const presetBtns = document.querySelectorAll(".preset-btn");
+    const form = document.getElementById("predictForm");
+
+    presetBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+            const presetKey = btn.getAttribute("data-preset");
+            const data = PRESETS[presetKey];
+
+            if (!data) return;
+
+            // Update UI feedback for buttons
+            presetBtns.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+
+            // Fill form fields
+            Object.keys(data).forEach(key => {
+                const input = form.querySelector(`[name="${key}"]`);
+                if (input) {
+                    input.value = data[key];
+                    // Trigger change event for potentially styling or other listeners
+                    input.dispatchEvent(new Event("change"));
+                }
+            });
+
+            // Show a small toast/feedback
+            const toastContainer = document.getElementById("toastContainer");
+            if (toastContainer) {
+                const toast = document.createElement("div");
+                toast.className = "toast";
+                toast.innerHTML = `<i class="fas fa-magic"></i> Form filled: ${btn.textContent.trim()}`;
+                toastContainer.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            }
+        });
+    });
+}
+
 // ── Prediction Form ──────────────────────────────────────────
 function setupPredictionForm() {
     const form = document.getElementById("predictForm");
@@ -880,4 +1021,70 @@ function renderCustomerModal(data) {
     }
 
     document.getElementById("modalBody").innerHTML = html;
+}
+
+// ── Logout Functionality ─────────────────────────────────────
+function setupLogout() {
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", async () => {
+            try {
+                const response = await fetch("/api/logout", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" }
+                });
+                
+                if (response.ok) {
+                    // Clear session storage
+                    sessionStorage.removeItem("admin-session");
+                    // Redirect to login
+                    window.location.href = "/login";
+                }
+            } catch (err) {
+                console.error("Logout failed:", err);
+            }
+        });
+    }
+}
+
+/**
+ * Generates and downloads churn reports (PDF/Excel)
+ * @param {string} period - 'weekly' or 'monthly'
+ * @param {string} format - 'pdf' or 'excel'
+ */
+async function downloadReport(period, format) {
+    const btn = event.currentTarget;
+    const originalContent = btn.innerHTML;
+    
+    // UI Feedback: Loading state
+    btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Generating...`;
+    btn.disabled = true;
+
+    try {
+        // Direct download using window.location.href
+        // This is more reliable for binary files with specific filenames
+        window.location.href = `/api/reports/download?period=${period}&format=${format}`;
+        
+        // Since window.location doesn't provide a callback for when the download starts,
+        // we'll use a timeout to reset the button state.
+        setTimeout(() => {
+            btn.innerHTML = `<i class="fas fa-check"></i> Ready`;
+            btn.classList.add('success');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+                btn.classList.remove('success');
+            }, 2000);
+        }, 1500);
+
+    } catch (err) {
+        console.error("Report download initiation failed:", err);
+        btn.innerHTML = `<i class="fas fa-exclamation-circle"></i> Failed`;
+        btn.disabled = false;
+        
+        setTimeout(() => {
+            btn.innerHTML = originalContent;
+        }, 3000);
+    }
 }

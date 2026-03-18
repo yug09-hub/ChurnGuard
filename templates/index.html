@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChurnGuard AI - Customer Churn Prediction Dashboard</title>
+    <title>ChurnGuard - Customer Churn Prediction Dashboard</title>
     <meta name="description"
         content="Real-time customer churn prediction dashboard powered by Machine Learning. Analyze customer behavior, predict churn risk, and get personalized retention strategies.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,6 +18,18 @@
 </head>
 
 <body>
+    <div class="bg-bubbles">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
 
     <!-- ═══ SPLASH SCREEN ═══ -->
     <div class="splash-screen" id="splashScreen">
@@ -25,8 +37,7 @@
             <div class="splash-icon">
                 <i class="fas fa-shield-halved"></i>
             </div>
-            <h1 class="splash-title">ChurnGuard <span>AI</span></h1>
-            <p class="splash-subtitle">Initializing prediction engine...</p>
+            <h1 class="splash-title">ChurnGuard</h1>
             <div class="splash-progress">
                 <div class="splash-progress-bar" id="splashProgress"></div>
             </div>
@@ -36,11 +47,6 @@
     <!-- ═══ TOAST CONTAINER ═══ -->
     <div class="toast-container" id="toastContainer"></div>
 
-    <!-- ═══ BACK TO TOP ═══ -->
-    <button class="back-to-top" id="backToTop" title="Back to top">
-        <i class="fas fa-arrow-up"></i>
-    </button>
-
     <!-- ═══ NAVIGATION ═══ -->
     <nav class="navbar" id="navbar">
         <div class="nav-brand">
@@ -49,7 +55,6 @@
             </div>
             <div class="brand-text">
                 <span class="brand-name">ChurnGuard</span>
-                <span class="brand-tag">AI</span>
             </div>
         </div>
         <div class="nav-links">
@@ -65,6 +70,9 @@
             <a href="#analytics" class="nav-link" data-section="analytics">
                 <i class="fas fa-chart-pie"></i> Analytics
             </a>
+            <a href="#reports" class="nav-link" data-section="reports">
+                <i class="fas fa-file-contract"></i> Reports
+            </a>
         </div>
         <div class="nav-right">
             <div class="nav-clock" id="navClock"></div>
@@ -75,6 +83,9 @@
                 <span class="status-dot"></span>
                 <span>Model Active</span>
             </div>
+            <button class="logout-btn" id="logoutBtn" title="Logout">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
         </div>
     </nav>
 
@@ -92,15 +103,15 @@
             <div class="hero-badges">
                 <div class="hero-badge">
                     <i class="fas fa-microchip"></i>
-                    <span id="heroModelName">Random Forest</span>
+                    <span id="heroModelName">Loading...</span>
                 </div>
                 <div class="hero-badge">
                     <i class="fas fa-database"></i>
-                    <span id="heroDataSize">7,043 Records</span>
+                    <span id="heroDataSize">Loading...</span>
                 </div>
                 <div class="hero-badge">
                     <i class="fas fa-bullseye"></i>
-                    <span id="heroAccuracy">84.75% AUC</span>
+                    <span id="heroAccuracy">Loading...</span>
                 </div>
             </div>
             <a href="#predict" class="hero-cta">
@@ -514,19 +525,69 @@
         </div>
     </section>
 
-    <!-- ═══ CUSTOMER DETAIL MODAL ═══ -->
-    <div class="modal-overlay" id="customerModal" style="display:none;">
+    <!-- ═══ CUSTOMER MODAL ═══ -->
+    <div class="modal-overlay" id="customerModal" style="display: none;">
         <div class="modal-content">
-            <button class="modal-close" id="modalClose"><i class="fas fa-times"></i></button>
             <div class="modal-header">
-                <h2><i class="fas fa-user-circle"></i> Customer Profile</h2>
-                <span class="modal-customer-id" id="modalCustomerId"></span>
+                <div class="modal-title">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Customer Details: <span id="modalCustomerId">...</span></span>
+                </div>
+                <button class="modal-close" id="modalClose">&times;</button>
             </div>
             <div class="modal-body" id="modalBody">
-                <div class="modal-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+                <!-- Data loaded via JS -->
             </div>
         </div>
     </div>
+
+    <!-- ═══ REPORTS SECTION ═══ -->
+    <section id="reports" class="reports-section">
+        <div class="section-header">
+            <h2 class="section-title">Churn <span class="gradient-text">Reports</span></h2>
+            <p class="section-subtitle">Generate professional weekly and monthly business intelligence reports.</p>
+        </div>
+
+        <div class="reports-grid">
+            <!-- Weekly Report Card -->
+            <div class="report-card">
+                <div class="report-icon-wrapper weekly">
+                    <i class="fas fa-calendar-week"></i>
+                </div>
+                <div class="report-info">
+                    <h3>Weekly Churn Analysis</h3>
+                    <p>Focused on high-risk customers from the past 7 days. Ideal for quick retention outreach.</p>
+                </div>
+                <div class="report-actions">
+                    <button class="btn-report pdf" onclick="downloadReport('weekly', 'pdf')">
+                        <i class="fas fa-file-pdf"></i> Download PDF
+                    </button>
+                    <button class="btn-report excel" onclick="downloadReport('weekly', 'excel')">
+                        <i class="fas fa-file-excel"></i> Download Excel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Monthly Report Card -->
+            <div class="report-card">
+                <div class="report-icon-wrapper monthly">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div class="report-info">
+                    <h3>Monthly Strategic Report</h3>
+                    <p>Comprehensive analysis of churn trends and long-term retention performance.</p>
+                </div>
+                <div class="report-actions">
+                    <button class="btn-report pdf" onclick="downloadReport('monthly', 'pdf')">
+                        <i class="fas fa-file-pdf"></i> Download PDF
+                    </button>
+                    <button class="btn-report excel" onclick="downloadReport('monthly', 'excel')">
+                        <i class="fas fa-file-excel"></i> Download Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!-- ═══ CONFETTI CANVAS ═══ -->
     <canvas id="confettiCanvas" class="confetti-canvas"></canvas>
@@ -536,12 +597,12 @@
         <div class="footer-content">
             <div class="footer-brand">
                 <i class="fas fa-shield-halved"></i>
-                <span>ChurnGuard AI</span>
+                <span>ChurnGuard</span>
             </div>
             <p>Powered by Machine Learning | Built with Python, Flask & Chart.js</p>
             <div class="footer-stats">
-                <span><i class="fas fa-database"></i> <span id="footerRecords">7,043</span> Records</span>
-                <span><i class="fas fa-microchip"></i> Random Forest Model</span>
+                <span><i class="fas fa-database"></i> <span id="footerRecords">-</span> Records</span>
+                <span><i class="fas fa-microchip"></i> <span id="footerModel">-</span> Model</span>
                 <span><i class="fas fa-clock"></i> Real-time Predictions</span>
             </div>
         </div>

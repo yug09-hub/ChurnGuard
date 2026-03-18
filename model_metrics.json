@@ -1,123 +1,87 @@
 {
   "RandomForest": {
-    "accuracy": 0.7786,
-    "precision": 0.5686,
-    "recall": 0.6872,
-    "f1": 0.6223,
-    "roc_auc": 0.8476,
-    "cv_f1_mean": 0.6356,
-    "cv_f1_std": 0.0071,
+    "accuracy": 0.6,
+    "precision": 0.4074,
+    "recall": 0.3143,
+    "f1": 0.3548,
+    "roc_auc": 0.5538,
+    "cv_f1_mean": 0.3862,
+    "cv_f1_std": 0.1031,
     "confusion_matrix": [
       [
-        840,
-        195
+        49,
+        16
       ],
       [
-        117,
-        257
+        24,
+        11
       ]
     ]
   },
   "GradientBoosting": {
-    "accuracy": 0.7793,
-    "precision": 0.5963,
-    "recall": 0.5214,
-    "f1": 0.5563,
-    "roc_auc": 0.8385,
-    "cv_f1_mean": 0.5911,
-    "cv_f1_std": 0.023,
+    "accuracy": 0.61,
+    "precision": 0.4231,
+    "recall": 0.3143,
+    "f1": 0.3607,
+    "roc_auc": 0.5582,
+    "cv_f1_mean": 0.373,
+    "cv_f1_std": 0.1056,
     "confusion_matrix": [
       [
-        903,
-        132
+        50,
+        15
       ],
       [
-        179,
-        195
+        24,
+        11
       ]
     ]
   },
   "best_model": "RandomForest",
   "feature_importances": [
     {
-      "feature": "Contract",
-      "importance": 0.1303
+      "feature": "total_charges",
+      "importance": 0.1759
     },
     {
-      "feature": "Charge_Per_Service",
-      "importance": 0.1019
+      "feature": "tenure_months",
+      "importance": 0.1743
     },
     {
-      "feature": "Tenure Months",
-      "importance": 0.0998
+      "feature": "avg_charge_per_month",
+      "importance": 0.1647
     },
     {
-      "feature": "Total Charges",
-      "importance": 0.089
+      "feature": "monthly_charges",
+      "importance": 0.1541
     },
     {
-      "feature": "Monthly Charges",
-      "importance": 0.0809
+      "feature": "contract_type",
+      "importance": 0.112
     },
     {
-      "feature": "Avg_Charge_Per_Month",
-      "importance": 0.0805
+      "feature": "payment_method",
+      "importance": 0.0649
     },
     {
-      "feature": "Dependents",
-      "importance": 0.057
+      "feature": "tenure_bucket",
+      "importance": 0.0464
     },
     {
-      "feature": "Online Security",
-      "importance": 0.0474
+      "feature": "internet_service",
+      "importance": 0.0447
     },
     {
-      "feature": "Tech Support",
-      "importance": 0.0456
+      "feature": "gender",
+      "importance": 0.031
     },
     {
-      "feature": "Tenure_Bucket",
-      "importance": 0.0402
+      "feature": "senior_citizen",
+      "importance": 0.0226
     },
     {
-      "feature": "Payment Method",
-      "importance": 0.0276
-    },
-    {
-      "feature": "Internet Service",
-      "importance": 0.022
-    },
-    {
-      "feature": "Online Backup",
-      "importance": 0.0162
-    },
-    {
-      "feature": "Service_Count",
-      "importance": 0.0158
-    },
-    {
-      "feature": "Paperless Billing",
-      "importance": 0.0151
-    },
-    {
-      "feature": "Partner",
-      "importance": 0.012
-    },
-    {
-      "feature": "Gender",
-      "importance": 0.0116
-    },
-    {
-      "feature": "Has_Internet",
-      "importance": 0.011
-    },
-    {
-      "feature": "Device Protection",
-      "importance": 0.0104
-    },
-    {
-      "feature": "Online Security_flag",
-      "importance": 0.0099
+      "feature": "has_internet",
+      "importance": 0.0095
     }
   ]
 }
