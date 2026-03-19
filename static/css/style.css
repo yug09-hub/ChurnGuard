@@ -437,7 +437,7 @@ body {
 /* ── Hero Section ─────────────────────────────────────────── */
 .hero-section {
     margin-top: var(--nav-height);
-    padding: 100px 32px 80px;
+    padding: 0px 32px 80px;
     position: relative;
     overflow: hidden;
     text-align: center;
@@ -512,7 +512,10 @@ body {
     position: relative;
     z-index: 1;
     max-width: 800px;
-    margin: 0 auto;
+    margin: -60px auto 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .hero-title {
@@ -737,6 +740,7 @@ section {
     font-family: 'JetBrains Mono', monospace;
     font-size: 34px;
     font-weight: 700;
+    font-variant-numeric: tabular-nums;
     letter-spacing: -1px;
     display: block;
 }

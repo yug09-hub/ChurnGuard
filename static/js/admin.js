@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadRememberedCredentials();
     setupEventListeners();
     animateEntrance();
+    initNeuralMesh();
 });
 
 // Theme Management
@@ -49,7 +50,7 @@ function initTheme() {
 function setTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('admin-theme', theme);
-    
+
     if (themeIcon) {
         themeIcon.className = theme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
     }
@@ -77,7 +78,7 @@ async function verifySession(token) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ token })
         });
-        
+
         if (response.ok) {
             window.location.href = '/';
         } else {
@@ -116,20 +117,20 @@ function saveRememberedCredentials(username) {
 function setupEventListeners() {
     // Theme toggle
     themeToggle.addEventListener('click', toggleTheme);
-    
+
     // Password visibility toggle
     passwordToggle.addEventListener('click', togglePasswordVisibility);
-    
+
     // Form submission
     loginForm.addEventListener('submit', handleLogin);
-    
+
     // Input focus effects
     usernameInput.addEventListener('input', () => hideError());
     passwordInput.addEventListener('input', () => hideError());
-    
+
     // Password input validation - check minimum length
     passwordInput.addEventListener('input', validatePasswordLength);
-    
+
     // Enter key on password field
     passwordInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
@@ -160,32 +161,39 @@ function setupEventListeners() {
     if (forgotPasswordForm) {
         forgotPasswordForm.addEventListener('submit', handleForgotPassword);
     }
+
+    // Input focus interaction for animation
+    const allInputs = document.querySelectorAll('input');
+    allInputs.forEach(input => {
+        input.addEventListener('focus', () => setAnimationDimmed(true));
+        input.addEventListener('blur', () => setAnimationDimmed(false));
+    });
 }
 
 // Handle Forgot Password
 async function handleForgotPassword(e) {
     e.preventDefault();
-    
+
     const username = resetUsernameInput.value.trim();
     const email = resetEmailInput.value.trim();
-    
+
     if (!username || !email) {
         showError('Please enter both username and email');
         return;
     }
-    
+
     setResetLoading(true);
     hideError();
-    
+
     try {
         const response = await fetch('/api/forgot-password', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, email })
         });
-        
+
         const data = await response.json();
-        
+
         if (response.ok && data.success) {
             showToast(data.message, 'success');
             // Reset form and go back to login after success
@@ -217,7 +225,7 @@ function setResetLoading(loading) {
 function validatePasswordLength() {
     const password = passwordInput.value;
     const minLength = 8;
-    
+
     if (password.length > 0 && password.length < minLength) {
         showPasswordError(`Password must be at least ${minLength} characters`);
         loginBtn.disabled = true;
@@ -231,7 +239,7 @@ function validatePasswordLength() {
 function showPasswordError(message) {
     // Remove existing error if any
     hidePasswordError();
-    
+
     const errorDiv = document.createElement('div');
     errorDiv.id = 'passwordValidationError';
     errorDiv.style.color = '#ef4444';
@@ -241,7 +249,7 @@ function showPasswordError(message) {
     errorDiv.style.alignItems = 'center';
     errorDiv.style.gap = '6px';
     errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
-    
+
     passwordInput.parentElement.parentElement.appendChild(errorDiv);
 }
 
@@ -258,7 +266,7 @@ function togglePasswordVisibility() {
     const isPassword = passwordInput.type === 'password';
     passwordInput.type = isPassword ? 'text' : 'password';
     passwordIcon.className = isPassword ? 'fas fa-eye-slash' : 'fas fa-eye';
-    
+
     // Add a subtle animation
     passwordToggle.style.transform = 'translateY(-50%) scale(0.9)';
     setTimeout(() => {
@@ -269,18 +277,18 @@ function togglePasswordVisibility() {
 // Handle login
 async function handleLogin(e) {
     e.preventDefault();
-    
+
     const username = usernameInput.value.trim();
     const password = passwordInput.value;
     const minLength = 8;
-    
+
     // Validation
     if (!username || !password) {
         showError('Please enter both username and password');
         shakeForm();
         return;
     }
-    
+
     // Check password length
     if (password.length < minLength) {
         showError(`Password must be at least ${minLength} characters`);
@@ -288,30 +296,30 @@ async function handleLogin(e) {
         passwordInput.focus();
         return;
     }
-    
+
     // Show loading state
     setLoading(true);
     hideError();
-    
+
     try {
         const response = await fetch('/api/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password })
         });
-        
+
         const data = await response.json();
-        
+
         if (response.ok && data.success) {
             // Save session
             sessionStorage.setItem('admin-session', data.token);
-            
+
             // Save remembered credentials
             saveRememberedCredentials(username);
-            
+
             // Show success toast
             showToast('Login successful! Redirecting...', 'success');
-            
+
             // Redirect to dashboard
             setTimeout(() => {
                 window.location.href = '/';
@@ -376,9 +384,9 @@ function showToast(message, type = 'success') {
         <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
         <span>${message}</span>
     `;
-    
+
     toastContainer.appendChild(toast);
-    
+
     setTimeout(() => {
         toast.style.opacity = '0';
         toast.style.transform = 'translateY(-20px)';
@@ -415,3 +423,132 @@ window.addEventListener('pageshow', (e) => {
         window.location.href = '/';
     }
 });
+
+/**
+ * Advanced Neural Network Animation
+ */
+let meshCanvas, meshCtx, network;
+let meshMouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
+let isDimmed = false;
+
+function initNeuralMesh() {
+    meshCanvas = document.getElementById('neuralMesh');
+    if (!meshCanvas) return;
+    
+    meshCtx = meshCanvas.getContext('2d');
+    network = new NeuralNetwork();
+    
+    window.addEventListener('resize', () => network.resize());
+    window.addEventListener('mousemove', (e) => {
+        meshMouse.targetX = (e.clientX - window.innerWidth / 2) / 20;
+        meshMouse.targetY = (e.clientY - window.innerHeight / 2) / 20;
+    });
+    
+    network.animate();
+}
+
+function setAnimationDimmed(dim) {
+    isDimmed = dim;
+    if (meshCanvas) {
+        meshCanvas.classList.toggle('dimmed', dim);
+    }
+}
+
+class NeuralNetwork {
+    constructor() {
+        this.particles = [];
+        this.particleCount = 50;
+        this.connectionDist = 180;
+        this.resize();
+        this.init();
+    }
+
+    resize() {
+        meshCanvas.width = window.innerWidth;
+        meshCanvas.height = window.innerHeight;
+        this.init(); // Re-init on resize to distribute particles
+    }
+
+    init() {
+        this.particles = [];
+        for (let i = 0; i < this.particleCount; i++) {
+            this.particles.push({
+                x: Math.random() * meshCanvas.width,
+                y: Math.random() * meshCanvas.height,
+                vx: (Math.random() - 0.5) * 0.4,
+                vy: (Math.random() - 0.5) * 0.4,
+                radius: Math.random() * 2 + 0.5,
+                glow: Math.random() * 10 + 5
+            });
+        }
+    }
+
+    getColors() {
+        const style = getComputedStyle(document.documentElement);
+        return {
+            node: style.getPropertyValue('--mesh-node').trim() || '#6366f1',
+            line: style.getPropertyValue('--mesh-line').trim() || 'rgba(99, 102, 241, 0.2)',
+            glow: style.getPropertyValue('--mesh-glow').trim() || 'rgba(99, 102, 241, 0.4)'
+        };
+    }
+
+    animate() {
+        // Smooth mouse parallax
+        meshMouse.x += (meshMouse.targetX - meshMouse.x) * 0.05;
+        meshMouse.y += (meshMouse.targetY - meshMouse.y) * 0.05;
+
+        meshCtx.clearRect(0, 0, meshCanvas.width, meshCanvas.height);
+        const colors = this.getColors();
+        const speedFactor = isDimmed ? 0.3 : 1;
+
+        meshCtx.save();
+        meshCtx.translate(meshMouse.x, meshMouse.y);
+
+        for (let i = 0; i < this.particles.length; i++) {
+            let p1 = this.particles[i];
+            
+            // Update position
+            p1.x += p1.vx * speedFactor;
+            p1.y += p1.vy * speedFactor;
+
+            // Boundary check
+            if (p1.x < -50) p1.x = meshCanvas.width + 50;
+            if (p1.x > meshCanvas.width + 50) p1.x = -50;
+            if (p1.y < -50) p1.y = meshCanvas.height + 50;
+            if (p1.y > meshCanvas.height + 50) p1.y = -50;
+
+            // Draw connections
+            for (let j = i + 1; j < this.particles.length; j++) {
+                let p2 = this.particles[j];
+                const dx = p1.x - p2.x;
+                const dy = p1.y - p2.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < this.connectionDist) {
+                    const opacity = (1 - dist / this.connectionDist) * (isDimmed ? 0.1 : 0.2);
+                    meshCtx.beginPath();
+                    meshCtx.strokeStyle = colors.line.replace(/[\d.]+\)$/g, `${opacity})`);
+                    meshCtx.lineWidth = 0.8;
+                    meshCtx.moveTo(p1.x, p1.y);
+                    meshCtx.lineTo(p2.x, p2.y);
+                    meshCtx.stroke();
+                }
+            }
+
+            // Draw node with glow
+            meshCtx.beginPath();
+            meshCtx.arc(p1.x, p1.y, p1.radius, 0, Math.PI * 2);
+            meshCtx.fillStyle = colors.node;
+            if (!isDimmed) {
+                meshCtx.shadowBlur = p1.glow;
+                meshCtx.shadowColor = colors.glow;
+            } else {
+                meshCtx.shadowBlur = 0;
+            }
+            meshCtx.fill();
+        }
+
+        meshCtx.restore();
+        requestAnimationFrame(() => this.animate());
+    }
+}

@@ -10,30 +10,35 @@
     --bg-card: rgba(17, 24, 39, 0.85);
     --bg-input: rgba(31, 41, 55, 0.8);
     --bg-hover: rgba(55, 65, 81, 0.5);
-    
+
     --text-primary: #f9fafb;
     --text-secondary: #9ca3af;
     --text-muted: #6b7280;
-    
+
     --accent-primary: #6366f1;
     --accent-secondary: #8b5cf6;
     --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-    
+
     --border-color: rgba(99, 102, 241, 0.2);
     --border-focus: rgba(99, 102, 241, 0.5);
-    
+
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
     --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
     --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.5);
     --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.15);
-    
+
     --error-bg: rgba(239, 68, 68, 0.1);
     --error-border: rgba(239, 68, 68, 0.3);
     --error-text: #f87171;
-    
+
     --success-bg: rgba(34, 197, 94, 0.1);
     --success-border: rgba(34, 197, 94, 0.3);
     --success-text: #4ade80;
+
+    /* Advanced Mesh Variables */
+    --mesh-node: rgba(99, 102, 241, 0.8);
+    --mesh-line: rgba(99, 102, 241, 0.2);
+    --mesh-glow: rgba(99, 102, 241, 0.4);
 }
 
 /* Light theme */
@@ -43,30 +48,35 @@
     --bg-card: rgba(255, 255, 255, 0.95);
     --bg-input: rgba(241, 245, 249, 0.9);
     --bg-hover: rgba(226, 232, 240, 0.6);
-    
+
     --text-primary: #1e293b;
     --text-secondary: #64748b;
     --text-muted: #94a3b8;
-    
+
     --accent-primary: #4f46e5;
     --accent-secondary: #7c3aed;
     --accent-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-    
+
     --border-color: rgba(99, 102, 241, 0.25);
     --border-focus: rgba(99, 102, 241, 0.6);
-    
+
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08);
     --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
     --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.2);
-    
+
     --error-bg: rgba(239, 68, 68, 0.08);
     --error-border: rgba(239, 68, 68, 0.25);
     --error-text: #dc2626;
-    
+
     --success-bg: rgba(34, 197, 94, 0.08);
     --success-border: rgba(34, 197, 94, 0.25);
     --success-text: #16a34a;
+
+    /* Advanced Mesh Variables */
+    --mesh-node: rgba(79, 70, 229, 0.6);
+    --mesh-line: rgba(79, 70, 229, 0.15);
+    --mesh-glow: rgba(79, 70, 229, 0.2);
 }
 
 /* Reset & Base */
@@ -105,7 +115,7 @@ body {
 .bg-gradient {
     position: absolute;
     inset: 0;
-    background: 
+    background:
         radial-gradient(ellipse at 20% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
         radial-gradient(ellipse at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
         radial-gradient(ellipse at 50% 50%, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
@@ -114,7 +124,7 @@ body {
 .bg-grid {
     position: absolute;
     inset: 0;
-    background-image: 
+    background-image:
         linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
         linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
     background-size: 50px 50px;
@@ -157,59 +167,40 @@ body {
 }
 
 @keyframes float {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    25% { transform: translate(30px, -30px) scale(1.05); }
-    50% { transform: translate(-20px, 20px) scale(0.95); }
-    75% { transform: translate(20px, 30px) scale(1.02); }
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    25% {
+        transform: translate(30px, -30px) scale(1.05);
+    }
+
+    50% {
+        transform: translate(-20px, 20px) scale(0.95);
+    }
+
+    75% {
+        transform: translate(20px, 30px) scale(1.02);
+    }
 }
 
-/* Background Bubbles */
-.bg-bubbles {
+/* Neural Network Canvas */
+.neural-canvas {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     z-index: 1;
-    overflow: hidden;
+    pointer-events: none;
+    opacity: 0.8;
+    transition: opacity 0.8s ease;
 }
 
-.bubble {
-    position: absolute;
-    list-style: none;
-    display: block;
-    width: 40px;
-    height: 40px;
-    background-color: rgba(99, 102, 241, 0.05);
-    bottom: -160px;
-    border-radius: 50%;
-    animation: bubbleMove 25s infinite linear;
-}
-
-[data-theme="light"] .bubble {
-    background-color: rgba(99, 102, 241, 0.08);
-}
-
-.bubble:nth-child(1) { left: 10%; width: 80px; height: 80px; animation-delay: 0s; }
-.bubble:nth-child(2) { left: 20%; width: 20px; height: 20px; animation-delay: 2s; animation-duration: 17s; }
-.bubble:nth-child(3) { left: 25%; animation-delay: 4s; }
-.bubble:nth-child(4) { left: 40%; width: 60px; height: 60px; animation-duration: 22s; background-color: rgba(20, 184, 166, 0.05); }
-.bubble:nth-child(5) { left: 70%; }
-.bubble:nth-child(6) { left: 80%; width: 120px; height: 120px; animation-delay: 3s; background-color: rgba(139, 92, 246, 0.05); }
-.bubble:nth-child(7) { left: 32%; width: 160px; height: 160px; animation-delay: 7s; }
-.bubble:nth-child(8) { left: 55%; width: 20px; height: 20px; animation-delay: 15s; animation-duration: 40s; }
-.bubble:nth-child(9) { left: 25%; width: 10px; height: 10px; animation-delay: 2s; animation-duration: 40s; background-color: rgba(20, 184, 166, 0.05); }
-.bubble:nth-child(10) { left: 90%; width: 160px; height: 160px; animation-delay: 11s; }
-
-@keyframes bubbleMove {
-    0% {
-        transform: translateY(0) rotate(0deg);
-        opacity: 1;
-    }
-    100% {
-        transform: translateY(-1200px) rotate(600deg);
-        opacity: 0;
-    }
+.neural-canvas.dimmed {
+    opacity: 0.3;
 }
 
 /* Theme Toggle */
@@ -255,6 +246,7 @@ body {
         opacity: 0;
         transform: translateY(30px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -283,8 +275,15 @@ body {
 }
 
 @keyframes pulse {
-    0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.4); }
-    50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.6); }
+
+    0%,
+    100% {
+        box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 0 40px rgba(99, 102, 241, 0.6);
+    }
 }
 
 .logo-title {
@@ -314,11 +313,30 @@ body {
 .login-card {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
-    border-radius: 24px;
-    padding: 36px;
-    backdrop-filter: blur(20px);
-    box-shadow: var(--shadow-lg), var(--shadow-glow);
-    transition: all 0.3s ease;
+    border-radius: 28px;
+    padding: 40px;
+    backdrop-filter: blur(25px) saturate(180%);
+    -webkit-backdrop-filter: blur(25px) saturate(180%);
+    box-shadow: 
+        var(--shadow-lg), 
+        var(--shadow-glow),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+[data-theme="light"] .login-card {
+    box-shadow: 
+        var(--shadow-lg), 
+        var(--shadow-glow),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+}
+
+.login-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--border-focus);
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.4),
+        0 0 60px rgba(99, 102, 241, 0.2);
 }
 
 .card-header {
@@ -490,12 +508,12 @@ body {
     transition: all 0.2s ease;
 }
 
-.checkbox-wrapper input:checked + .checkmark {
+.checkbox-wrapper input:checked+.checkmark {
     background: var(--accent-primary);
     border-color: var(--accent-primary);
 }
 
-.checkbox-wrapper input:checked + .checkmark::after {
+.checkbox-wrapper input:checked+.checkmark::after {
     opacity: 1;
     transform: scale(1);
 }
@@ -572,9 +590,19 @@ body {
 }
 
 @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    75% {
+        transform: translateX(5px);
+    }
 }
 
 /* Security Notice */
@@ -654,6 +682,7 @@ body {
         opacity: 0;
         transform: translateY(-20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -665,22 +694,22 @@ body {
     .login-container {
         padding: 16px;
     }
-    
+
     .login-card {
         padding: 24px;
         border-radius: 20px;
     }
-    
+
     .logo-icon {
         width: 60px;
         height: 60px;
         font-size: 26px;
     }
-    
+
     .logo-title {
         font-size: 1.75rem;
     }
-    
+
     .theme-toggle {
         top: 16px;
         right: 16px;

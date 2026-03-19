@@ -582,9 +582,20 @@ def customers():
         mask = df.apply(lambda row: search.lower() in str(row).lower(), axis=1)
         df = df[mask]
 
+    # Map frontend sort values to DataFrame column names
+    sort_mapping = {
+        "Churn Score": "churn",
+        "Monthly Charges": "monthly_charges",
+        "Tenure Months": "tenure_months",
+        "Total Charges": "total_charges"
+    }
+    
+    # Use mapped column name if available, otherwise use original
+    sort_column = sort_mapping.get(sort_by, sort_by)
+    
     # Sort
-    if sort_by in df.columns:
-        df = df.sort_values(sort_by, ascending=(sort_dir == "asc"))
+    if sort_column in df.columns:
+        df = df.sort_values(sort_column, ascending=(sort_dir == "asc"))
 
     total = len(df)
     total_pages = max(1, (total + per_page - 1) // per_page)

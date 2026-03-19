@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,10 +8,13 @@
     <meta name="description" content="Secure admin login for ChurnGuard Dashboard">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/static/css/admin.css">
 </head>
+
 <body>
     <!-- Background Effects -->
     <div class="bg-effects">
@@ -19,18 +23,7 @@
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
         <div class="orb orb-3"></div>
-        <div class="bg-bubbles">
-            <div class="bubble"></div>
-            <div class="bubble"></div>
-            <div class="bubble"></div>
-            <div class="bubble"></div>
-            <div class="bubble"></div>
-            <div class="bubble"></div>
-            <div class="bubble"></div>
-            <div class="bubble"></div>
-            <div class="bubble"></div>
-            <div class="bubble"></div>
-        </div>
+        <canvas id="neuralMesh" class="neural-canvas"></canvas>
     </div>
 
     <!-- Theme Toggle -->
@@ -64,14 +57,8 @@
                         Username
                     </label>
                     <div class="input-wrapper">
-                        <input 
-                            type="text" 
-                            id="username" 
-                            name="username" 
-                            placeholder="Enter your username"
-                            autocomplete="username"
-                            required
-                        >
+                        <input type="text" id="username" name="username" placeholder="Enter your username"
+                            autocomplete="username" required>
                     </div>
                 </div>
 
@@ -82,14 +69,8 @@
                         Password
                     </label>
                     <div class="input-wrapper">
-                        <input 
-                            type="password" 
-                            id="password" 
-                            name="password" 
-                            placeholder="Enter your password"
-                            autocomplete="current-password"
-                            required
-                        >
+                        <input type="password" id="password" name="password" placeholder="Enter your password"
+                            autocomplete="current-password" required>
                         <button type="button" class="password-toggle" id="passwordToggle" title="Show/Hide password">
                             <i class="fas fa-eye" id="passwordIcon"></i>
                         </button>
@@ -129,7 +110,7 @@
                     <h2>Reset Password</h2>
                     <p>Enter your username and registered email</p>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="resetUsername">
                         <i class="fas fa-user"></i>
@@ -190,4 +171,5 @@
 
     <script src="/static/js/admin.js?v=7"></script>
 </body>
+
 </html>

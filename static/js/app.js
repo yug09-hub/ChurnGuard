@@ -100,11 +100,22 @@ async function loadStats() {
         const data = await res.json();
         statsData = data;
 
-        // KPI Counters
-        animateCounter("kpiTotalVal", data.dataset.total_customers, "", ",");
-        animateCounter("kpiChurnVal", data.dataset.churn_rate, "%");
-        animateCounter("kpiChargesVal", data.dataset.avg_monthly_charges, "", "$", true);
-        animateCounter("kpiAtRiskVal", data.dataset.churned, "", ",");
+        // Store data for later animation
+        statsData.kpiData = {
+            total: data.dataset.total_customers,
+            churnRate: data.dataset.churn_rate,
+            avgCharges: data.dataset.avg_monthly_charges,
+            churned: data.dataset.churned
+        };
+
+        // Set initial values to 0
+        document.getElementById("kpiTotalVal").textContent = "0";
+        document.getElementById("kpiChurnVal").textContent = "0%";
+        document.getElementById("kpiChargesVal").textContent = "$0";
+        document.getElementById("kpiAtRiskVal").textContent = "0";
+
+        // Setup intersection observer to trigger animation when scrolled into view
+        setupKPIAnimationObserver();
 
         // Hero badges
         document.getElementById("heroModelName").textContent = data.model.best_model;
@@ -136,19 +147,57 @@ async function loadStats() {
     }
 }
 
-// ── Animated Counter ─────────────────────────────────────────
+// ── KPI Animation Observer ───────────────────────────────────
+let kpiAnimationTriggered = false;
+
+function setupKPIAnimationObserver() {
+    const kpiSection = document.querySelector('.kpi-section');
+    if (!kpiSection || !statsData || !statsData.kpiData) return;
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !kpiAnimationTriggered) {
+                kpiAnimationTriggered = true;
+                
+                // Trigger all counter animations
+                animateCounter("kpiTotalVal", statsData.kpiData.total, "", ",");
+                animateCounter("kpiChurnVal", statsData.kpiData.churnRate, "%");
+                animateCounter("kpiChargesVal", statsData.kpiData.avgCharges, "", "$", true);
+                animateCounter("kpiAtRiskVal", statsData.kpiData.churned, "", ",");
+                
+                // Disconnect observer after animation starts
+                observer.disconnect();
+            }
+        });
+    }, {
+        threshold: 0.3 // Trigger when 30% of the section is visible
+    });
+
+    observer.observe(kpiSection);
+}
+
+// ── Animated Counter with Smooth Rolling Effect ──────────────
 function animateCounter(elementId, target, suffix = "", prefix = "", isDecimal = false) {
     const el = document.getElementById(elementId);
     if (!el) return;
-    const duration = 2000;
+    
+    // Longer duration for slow, smooth animation (4 seconds)
+    const duration = 4000;
     const start = performance.now();
-    const startVal = 0;
-
+    const finalTarget = target;
+    
+    // Smooth ease-out function for continuous deceleration
+    function easeOutQuart(t) {
+        return 1 - Math.pow(1 - t, 4);
+    }
+    
     function update(now) {
         const elapsed = now - start;
         const progress = Math.min(elapsed / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
-        const current = startVal + (target - startVal) * eased;
+        
+        // Smooth continuous easing from start to finish
+        const eased = easeOutQuart(progress);
+        const current = finalTarget * eased;
 
         let display;
         if (isDecimal) {
@@ -156,7 +205,7 @@ function animateCounter(elementId, target, suffix = "", prefix = "", isDecimal =
         } else if (suffix === "%") {
             display = current.toFixed(1);
         } else {
-            display = Math.round(current).toLocaleString();
+            display = Math.floor(current).toLocaleString();
         }
 
         if (prefix === "$") display = "$" + display;
@@ -164,7 +213,22 @@ function animateCounter(elementId, target, suffix = "", prefix = "", isDecimal =
 
         el.textContent = display;
 
-        if (progress < 1) requestAnimationFrame(update);
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        } else {
+            // Ensure final value is exact
+            let finalDisplay;
+            if (isDecimal) {
+                finalDisplay = finalTarget.toFixed(2);
+            } else if (suffix === "%") {
+                finalDisplay = finalTarget.toFixed(1);
+            } else {
+                finalDisplay = Math.round(finalTarget).toLocaleString();
+            }
+            if (prefix === "$") finalDisplay = "$" + finalDisplay;
+            if (suffix) finalDisplay += suffix;
+            el.textContent = finalDisplay;
+        }
     }
 
     requestAnimationFrame(update);
