@@ -82,21 +82,65 @@ def require_auth(f):
     return decorated_function
 
 # ── Load ML Artifacts ────────────────────────────────────────────────────
-model = joblib.load(MODEL_PATH)
-label_encoders = joblib.load(ENCODERS_PATH)
-scaler = joblib.load(SCALER_PATH)
+# ── Load Model & Data with Fallbacks ─────────────────────────────────────
+def load_model_files():
+    """Load model files with error handling for deployment environments."""
+    global model, label_encoders, scaler, feature_columns, model_metrics, dataset_stats, df_raw
+    
+    try:
+        model = joblib.load(MODEL_PATH)
+        label_encoders = joblib.load(ENCODERS_PATH)
+        scaler = joblib.load(SCALER_PATH)
+    except Exception as e:
+        print(f"Warning: Could not load model files: {e}")
+        model = None
+        label_encoders = None
+        scaler = None
+    
+    try:
+        with open(FEATURES_PATH, "r") as f:
+            feature_columns = json.load(f)
+    except Exception as e:
+        print(f"Warning: Could not load feature columns: {e}")
+        feature_columns = []
+    
+    try:
+        with open(METRICS_PATH, "r") as f:
+            model_metrics = json.load(f)
+    except Exception as e:
+        print(f"Warning: Could not load model metrics: {e}")
+        model_metrics = {"best_model": "Unknown", "error": str(e)}
+    
+    try:
+        with open(STATS_PATH, "r") as f:
+            dataset_stats = json.load(f)
+    except Exception as e:
+        print(f"Warning: Could not load dataset stats: {e}")
+        dataset_stats = {
+            "total_customers": 0,
+            "churn_rate": 0,
+            "avg_monthly_charges": 0,
+            "churned": 0,
+            "not_churned": 0,
+            "churn_by_contract": {},
+            "churn_by_tenure": {},
+            "churn_by_payment": {},
+            "charges_distribution": {},
+            "top_churn_reasons": {}
+        }
+    
+    try:
+        df_raw = pd.read_csv(DATA_PATH)
+    except Exception as e:
+        print(f"Warning: Could not load dataset: {e}")
+        # Create empty dataframe with expected columns
+        df_raw = pd.DataFrame(columns=[
+            "customer_id", "gender", "senior_citizen", "partner", "dependents",
+            "tenure_months", "contract_type", "monthly_charges", "total_charges",
+            "churn", "internet_service", "payment_method"
+        ])
 
-with open(FEATURES_PATH, "r") as f:
-    feature_columns = json.load(f)
-
-with open(METRICS_PATH, "r") as f:
-    model_metrics = json.load(f)
-
-with open(STATS_PATH, "r") as f:
-    dataset_stats = json.load(f)
-
-# Load raw dataset for customer exploration
-df_raw = pd.read_csv(DATA_PATH)
+load_model_files()
 
 # ── Retention Strategies Database ────────────────────────────────────────
 RETENTION_STRATEGIES = {
@@ -527,6 +571,9 @@ def index():
 def predict():
     """Predict churn for a single customer."""
     try:
+        if model is None:
+            return jsonify({"error": "Model not loaded. Please ensure model files are available."}), 503
+            
         data = request.get_json()
         if not data:
             return jsonify({"error": "No data provided"}), 400
