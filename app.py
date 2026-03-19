@@ -1003,4 +1003,10 @@ if __name__ == "__main__":
     print(f"  Churn Rate: {dataset_stats.get('churn_rate', 0)}%")
     print("=" * 60 + "\n")
 
-    app.run(debug=True, host="127.0.0.1", port=5000)
+    # Use PORT from environment (Render sets this), default to 5000 for local
+    port = int(os.environ.get("PORT", 5000))
+    # Use 0.0.0.0 for production, 127.0.0.1 for local
+    host = "0.0.0.0" if os.environ.get("RENDER") else "127.0.0.1"
+    debug = not os.environ.get("RENDER")  # Disable debug in production
+    
+    app.run(debug=debug, host=host, port=port)
