@@ -1,0 +1,34 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "app.py",
+      "use": "@vercel/python",
+      "config": {
+        "includeFiles": [
+          "model.pkl",
+          "scaler.pkl",
+          "label_encoders.pkl",
+          "feature_columns.json",
+          "model_metrics.json",
+          "dataset_stats.json",
+          "customer_churn_500_dataset.csv",
+          "Telco_customer_churn.csv",
+          "templates/**",
+          "static/**",
+          "instance/**"
+        ]
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/static/(.*)",
+      "dest": "/static/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "app.py"
+    }
+  ]
+}
